@@ -2,7 +2,7 @@
 
 **Deep Learning | Computer Vision | Image Classification**
 
-A Convolutional Neural Network (CNN) project that classifies handwritten English letters **A–Z** using the **EMNIST Letters** dataset. The project compares a baseline model with two improved versions, focusing on better generalisation through architecture changes, regularisation and image augmentation.
+A Convolutional Neural Network (CNN) project that classifies handwritten English letters **A–Z** using the **EMNIST Letters** dataset. The project compares a baseline model with two improved versions, focusing on generalisation through architectural changes, regularisation and image augmentation. A follow-up experiment examines **Convolutional Block Attention Module (CBAM)** and whether attention helps distinguish visually similar letters.
 
 ## Results
 
@@ -38,6 +38,25 @@ Performance was compared using **training/validation curves, test accuracy, test
 
 An important remaining limitation was the confusion between visually similar letters, especially **I** and **L**. Augmentation helped other difficult classes, but did not resolve this ambiguity at the source image resolution.
 
+## Follow-up experiment: CBAM attention (Part C)
+
+I extended the original CNN work with a **Convolutional Block Attention Module (CBAM)** that combines channel attention (which feature channels matter) and spatial attention (where important patterns appear).
+
+Two controlled experiments compared the existing CNN architecture against versions enhanced with CBAM. The follow-up also included **three-seed robustness checks** and a detailed analysis of the **I / L** classification errors.
+
+| Follow-up model | Test accuracy | Macro F1 | Total I ↔ L errors |
+| --- | ---: | ---: | ---: |
+| V2 baseline | 93.95% | 0.9392 | 217 |
+| V2 + CBAM | 93.80% | 0.9379 | 216 |
+| **V3 with augmentation** | **94.43%** | **0.9443** | 220 |
+| V3 + CBAM | 94.08% | 0.9405 | 226 |
+
+*These results are from the Part C controlled experiment; the earlier results table comes from the original Part A runs, so small numeric differences reflect separate experiments.*
+
+**Key finding:** The CBAM extension did **not** improve overall performance. It reduced `L → I` errors but increased `I → L` errors, with little or no net benefit. Adding attention also increased training costs. This demonstrated the importance of evaluating added model complexity against real performance gains instead of assuming a more complex model is automatically better.
+
+See [`emnist_cbam_experiments.ipynb`](emnist_cbam_experiments.ipynb) for source code and [`docs/CBAM_Experiment_Results.html`](docs/CBAM_Experiment_Results.html) for the original executed notebook export, including charts and outputs. HTML exports may need to be downloaded and opened locally to see the complete formatting.
+
 ## Tech stack
 
 - **Language:** Python
@@ -52,11 +71,13 @@ An important remaining limitation was the confusion between visually similar let
 ```text
 .
 ├── README.md
-├── emnist_letters_cnn.ipynb   # Analysis, model training and evaluation
+├── emnist_letters_cnn.ipynb   # Part A: CNN training and evaluation
+├── emnist_cbam_experiments.ipynb # Part C: CBAM experiments
 ├── requirements.txt
 ├── .gitignore
 └── docs/
-    └── CNN_Project_Presentation.pdf
+    ├── CNN_Project_Presentation.pdf
+    └── CBAM_Experiment_Results.html
 ```
 
 The **dataset** and **trained model file** are intentionally excluded from the repository.
@@ -78,13 +99,13 @@ The **dataset** and **trained model file** are intentionally excluded from the r
    jupyter notebook emnist_letters_cnn.ipynb
    ```
 
-6. Run the notebook cells in order to reproduce the cleaning, training and evaluation process. Training time and numerical results can vary with the environment and random state.
+6. Run the notebook cells in order to reproduce the cleaning, training and evaluation process. For the attention experiments, open `emnist_cbam_experiments.ipynb` and use the same `data/emnist-letters.csv` file. Training time and numerical results can vary with the environment and random state.
 
-> **Note:** This notebook was reconstructed from the original Jupyter HTML export. Code cells and written analysis have been preserved, but previously rendered notebook outputs are not embedded. The local Windows dataset path was replaced with `data/emnist-letters.csv` for portability.
+> **Note:** The notebooks were reconstructed from Jupyter HTML exports. Code cells and written analysis were carried over, but previously rendered outputs are not embedded in the reconstructed notebooks. Local Windows dataset paths were replaced with `data/emnist-letters.csv` for portability. The Part C executed HTML export is included under `docs/` as a results reference. These reconstructed notebooks have not been rerun in this environment.
 
 ## Future improvements
 
-- Investigate targeted handling of **I / L** confusion, including improved image resolution or class-specific augmentation.
+- Investigate targeted handling of **I / L** confusion, including improved image resolution or class-specific augmentation; the CBAM experiment alone did not resolve the ambiguity.
 - Evaluate the model on independent handwriting samples beyond the course dataset.
 - Package the model behind a simple prediction interface.
 
